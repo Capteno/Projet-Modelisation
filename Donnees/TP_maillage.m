@@ -3,6 +3,7 @@ close all;
 % Nombre d'images utilisees
 nb_images = 36; 
 load("mask.mat")
+mask_maison = zeros(size(im_mask));
 
 % chargement des images
 for i = 1:nb_images
@@ -31,11 +32,11 @@ subplot(2,2,4); imshow(im(:,:,:,25)); title('Image 25');
 % à chaque étape / à chaque itération                     %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-for kkk = 5:5
-
+for n_image = 1:nb_images
+    n_image
     %========== Chargement de l'image ==========%
     
-    imagetest = im(:,:,:,kkk);
+    imagetest = im(:,:,:,n_image);
     [hauteur, largeur, ~] = size(imagetest);
     mat = rgb2lab(imagetest);
     [matPositionLargeur, matPositionHauteur] = meshgrid(1:largeur, 1:hauteur);
@@ -45,11 +46,11 @@ for kkk = 5:5
     
     %========== Variables ==========%
     
-    k = 400; % Nombre de superpixel
+    k = 800; % Nombre de superpixel
     m = 40; % Compacité
     n = 3; % Taille du voisinnage pour l'affinement de la grille
-    nbIterSPmax = 5; % Itération max de k-means (Réduction du temps de calcul)
-    Seuil = 10; % Seuil de fin de k-means
+    nbIterSPmax = 2; % Itération max de k-means (Réduction du temps de calcul)
+    Seuil = 250; % Seuil de fin de k-means
     voisCC = 2; % Taille du voisinnage pour le renforcement de la connexité
     
     
@@ -113,7 +114,7 @@ for kkk = 5:5
     figure;
     
     while exit && nbIterSP < nbIterSPmax
-    
+        nbIterSP
         %========== Calcul des superpixels ==========%
     
         tic
@@ -174,7 +175,7 @@ for kkk = 5:5
         calcul = (centres - centresNew).^2;
         distColor = sqrt(sum(calcul(:,1:3), 2));
         distXY = sqrt(sum(calcul(:,4:5), 2));         
-        E = sum(distColor + (m/Surf) * distXY);
+        E = sum(distColor + (m/Surf) * distXY)
     
         % Mise à jour des centres
         centres = centresNew;
@@ -184,24 +185,24 @@ for kkk = 5:5
     
         nbIterSP = nbIterSP + 1;
     
-        % Affichage des superpixels actuels
-        imagesc(etiq);
-        colormap(jet);
-        title("Superpixels")
-        hold on;
-        plot(centres(:, 5), centres(:, 4), 'ro', 'MarkerSize', 2);
-        hold off;
-    
-        drawnow;
+        % % Affichage des superpixels actuels
+        % imagesc(etiq);
+        % colormap(jet);
+        % title("Superpixels")
+        % hold on;
+        % plot(centres(:, 5), centres(:, 4), 'ro', 'MarkerSize', 2);
+        % hold off;
+        % 
+        % drawnow;
     
         tMajCentres(nbIterSP) = toc;
     
     end
     
-    figure;
-    imagesc(etiq);
-    colormap(jet);
-    title("Superpixels")
+    % figure;
+    % imagesc(etiq);
+    % colormap(jet);
+    % title("Superpixels")
     
     
     
@@ -263,24 +264,24 @@ for kkk = 5:5
     
     tRenfoCnx = toc;
     
-    % Affichage des superpixels après le renforcement de la connexité
-    figure;
-    imagesc(etiq);
-    colormap(jet);
-    title("Superpixels après renforcement de la connexité ")
-    
-    % Affichage de l'image d'origine avec les contours des superpixels
-    figure;
-    imshow(imagetest);
-    hold on;
-    for i = 1:nbrsuperPixel
-        boundaries = bwboundaries(etiq == i, 8, "noholes");
-        for k = 1:length(boundaries)
-            boundary = boundaries{k};
-            plot(boundary(:,2), boundary(:, 1), 'r', 'LineWidth', 2);
-        end
-    end
-    hold off;
+    % % Affichage des superpixels après le renforcement de la connexité
+    % figure;
+    % imagesc(etiq);
+    % colormap(jet);
+    % title("Superpixels après renforcement de la connexité ")
+    % 
+    % % Affichage de l'image d'origine avec les contours des superpixels
+    % figure;
+    % imshow(imagetest);
+    % hold on;
+    % for i = 1:nbrsuperPixel
+    %     boundaries = bwboundaries(etiq == i, 8, "noholes");
+    %     for k = 1:length(boundaries)
+    %         boundary = boundaries{k};
+    %         plot(boundary(:,2), boundary(:, 1), 'r', 'LineWidth', 2);
+    %     end
+    % end
+    % hold off;
     
     fprintf('========== Temps de calcul ==========\n');
     fprintf('   Placement et affinement des germes : %d\n', tAffiGrille);
@@ -302,27 +303,6 @@ for kkk = 5:5
     % Binarisation de l'image à partir des superpixels        %
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-    % % Binarisation de l'image à partir des superpixels via k-means sur les centres
-    % 
-    % % Nombre de clusters pour k-means
-    % nombre_clusters = 2;
-    % 
-    % % Appliquer k-means sur les centres de superpixels
-    % indices_cluster = kmeans(lab2rgb(centres(:, 1:3)), nombre_clusters);
-    % 
-    % % Création du masque binaire en fonction du cluster cible
-    % boooo = ismember(indices_cluster, 1);
-    % ind = find(boooo);
-    % Binaire = ismember(etiq,ind);
-    % 
-    % % Remodeler le masque binaire à la taille de l'image
-    % Binaire = reshape(Binaire, [hauteur, largeur]);
-    % 
-    % % Affichage du masque binaire
-    % figure;
-    % imshow(Binaire);
-    % title('Image binarisée via k-means sur les centres');
-    
     % Sélection des superpixels "jaunes lumineux"
     LumiJaune = centres(:,3) <= -1 | centres(:,1) <= 20;
     
@@ -334,8 +314,8 @@ for kkk = 5:5
     subplot(1,2,1);
     imshow(Binaire);
     subplot(1,2,2);
-    imshow(im_mask(:,:,kkk));
-
+    imshow(im_mask(:,:,n_image));
+    mask_maison(:,:,n_image) = Binaire;
 end
 
 
