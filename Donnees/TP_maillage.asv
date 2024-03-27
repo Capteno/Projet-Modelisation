@@ -2,7 +2,6 @@ clear;
 close all;
 % Nombre d'images utilisees
 nb_images = 36; 
-load("mask.mat")
 
 % chargement des images
 for i = 1:nb_images
@@ -31,7 +30,7 @@ subplot(2,2,4); imshow(im(:,:,:,25)); title('Image 25');
 % à chaque étape / à chaque itération                     %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-for kkk = 5:5
+for kkk = 1:2
 
     %========== Chargement de l'image ==========%
     
@@ -46,9 +45,9 @@ for kkk = 5:5
     %========== Variables ==========%
     
     k = 400; % Nombre de superpixel
-    m = 40; % Compacité
+    m = 30; % Compacité
     n = 3; % Taille du voisinnage pour l'affinement de la grille
-    nbIterSPmax = 5; % Itération max de k-means (Réduction du temps de calcul)
+    nbIterSPmax = 2; % Itération max de k-means (Réduction du temps de calcul)
     Seuil = 10; % Seuil de fin de k-means
     voisCC = 2; % Taille du voisinnage pour le renforcement de la connexité
     
@@ -324,7 +323,7 @@ for kkk = 5:5
     % title('Image binarisée via k-means sur les centres');
     
     % Sélection des superpixels "jaunes lumineux"
-    LumiJaune = centres(:,3) <= -1 | centres(:,1) <= 20;
+    LumiJaune = centres(:,3) > -1 & centres(:,1) > 20;
     
     % Création de masque
     Binaire = ismember(etiq,find(LumiJaune));
@@ -334,7 +333,7 @@ for kkk = 5:5
     subplot(1,2,1);
     imshow(Binaire);
     subplot(1,2,2);
-    imshow(im_mask(:,:,kkk));
+    imshow(Binaire);
 
 end
 
