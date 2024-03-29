@@ -3,7 +3,6 @@ close all;
 % Nombre d'images utilisees
 nb_images = 36; 
 load("mask.mat")
-mask_maison = zeros(size(im_mask));
 
 % chargement des images
 for i = 1:nb_images
@@ -313,7 +312,6 @@ for n_image = 1:1
     imshow(Binaire);
     subplot(1,2,2);
     imshow(im_mask(:,:,n_image));
-    mask_maison(:,:,n_image) = Binaire;
 end
 
 
