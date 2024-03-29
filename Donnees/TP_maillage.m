@@ -18,7 +18,7 @@ for i = 1:nb_images
     im(:,:,:,i) = imread(nom); 
 end
 
-% Affichage des images
+% % Affichage des images
 figure; 
 subplot(2,2,1); imshow(im(:,:,:,1)); title('Image 1');
 subplot(2,2,2); imshow(im(:,:,:,9)); title('Image 9');
@@ -32,8 +32,7 @@ subplot(2,2,4); imshow(im(:,:,:,25)); title('Image 25');
 % à chaque étape / à chaque itération                     %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-for n_image = 1:nb_images
-    n_image
+for n_image = 1:1
     %========== Chargement de l'image ==========%
     
     imagetest = im(:,:,:,n_image);
@@ -114,7 +113,6 @@ for n_image = 1:nb_images
     figure;
     
     while exit && nbIterSP < nbIterSPmax
-        nbIterSP
         %========== Calcul des superpixels ==========%
     
         tic
@@ -175,7 +173,7 @@ for n_image = 1:nb_images
         calcul = (centres - centresNew).^2;
         distColor = sqrt(sum(calcul(:,1:3), 2));
         distXY = sqrt(sum(calcul(:,4:5), 2));         
-        E = sum(distColor + (m/Surf) * distXY)
+        E = sum(distColor + (m/Surf) * distXY);
     
         % Mise à jour des centres
         centres = centresNew;
@@ -185,24 +183,24 @@ for n_image = 1:nb_images
     
         nbIterSP = nbIterSP + 1;
     
-        % % Affichage des superpixels actuels
-        % imagesc(etiq);
-        % colormap(jet);
-        % title("Superpixels")
-        % hold on;
-        % plot(centres(:, 5), centres(:, 4), 'ro', 'MarkerSize', 2);
-        % hold off;
-        % 
-        % drawnow;
+        % Affichage des superpixels actuels
+        imagesc(etiq);
+        colormap(jet);
+        title("Superpixels")
+        hold on;
+        plot(centres(:, 5), centres(:, 4), 'ro', 'MarkerSize', 2);
+        hold off;
+
+        drawnow;
     
         tMajCentres(nbIterSP) = toc;
     
     end
     
-    % figure;
-    % imagesc(etiq);
-    % colormap(jet);
-    % title("Superpixels")
+    figure;
+    imagesc(etiq);
+    colormap(jet);
+    title("Superpixels")
     
     
     
@@ -264,38 +262,38 @@ for n_image = 1:nb_images
     
     tRenfoCnx = toc;
     
-    % % Affichage des superpixels après le renforcement de la connexité
-    % figure;
-    % imagesc(etiq);
-    % colormap(jet);
-    % title("Superpixels après renforcement de la connexité ")
-    % 
-    % % Affichage de l'image d'origine avec les contours des superpixels
-    % figure;
-    % imshow(imagetest);
-    % hold on;
-    % for i = 1:nbrsuperPixel
-    %     boundaries = bwboundaries(etiq == i, 8, "noholes");
-    %     for k = 1:length(boundaries)
-    %         boundary = boundaries{k};
-    %         plot(boundary(:,2), boundary(:, 1), 'r', 'LineWidth', 2);
-    %     end
-    % end
-    % hold off;
+    % Affichage des superpixels après le renforcement de la connexité
+    figure;
+    imagesc(etiq);
+    colormap(jet);
+    title("Superpixels après renforcement de la connexité ")
+
+    % Affichage de l'image d'origine avec les contours des superpixels
+    figure;
+    imshow(imagetest);
+    hold on;
+    for i = 1:nbrsuperPixel
+        boundaries = bwboundaries(etiq == i, 8, "noholes");
+        for k = 1:length(boundaries)
+            boundary = boundaries{k};
+            plot(boundary(:,2), boundary(:, 1), 'r', 'LineWidth', 2);
+        end
+    end
+    hold off;
     
     fprintf('========== Temps de calcul ==========\n');
     fprintf('   Placement et affinement des germes : %d\n', tAffiGrille);
     fprintf('   Calcul des superpixels : %d\n', mean(nonzeros(tCalculSpxl)));
     fprintf('   Mise à jour des centres : %d\n', mean(nonzeros(tMajCentres)));
     fprintf('   Renforcement de la connexité : %d\n', mean(nonzeros(tRenfoCnx)));
-    
+
     fprintf("\n========== Nombres d'itérations ==========\n");
     fprintf('   Calcul des superpixels : %d (%d)\n', nbIterSP, nbIterSPmax);
     fprintf('   Renforcement de la connexité : %d\n', nbIterRC);
-    
+
     fprintf("\n========== Erreur résiduelle ==========\n");
     fprintf('   E = %d\n', E);
-    
+
     
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -345,47 +343,47 @@ end
 % tous les appariements possibles pour un point 3D donne
 % on affiche les coordonnees (xi,yi) de Pi dans les colonnes 2i-1 et 2i
 % tout le reste vaut -1
-pts = load('viff.xy');
+% pts = load('viff.xy');
 % Chargement des matrices de projection
 % Chaque P{i} contient la matrice de projection associee a l'image i 
 % RAPPEL : P{i} est de taille 3 x 4
-load dino_Ps;
+% load dino_Ps;
 
 % Reconstruction des points 3D
-X = []; % Contient les coordonnees des points en 3D
-color = []; % Contient la couleur associee
-% Pour chaque couple de points apparies
-for i = 1:size(pts,1)
-    % Recuperation des ensembles de points apparies
-    l = find(pts(i,1:2:end)~=-1);
-    % Verification qu'il existe bien des points apparies dans cette image
-    if size(l,2) > 1 & max(l)-min(l) > 1 & max(l)-min(l) < 36
-        A = [];
-        R = 0;
-        G = 0;
-        B = 0;
-        % Pour chaque point recupere, calcul des coordonnees en 3D
-        for j = l
-            A = [A;P{j}(1,:)-pts(i,(j-1)*2+1)*P{j}(3,:);
-            P{j}(2,:)-pts(i,(j-1)*2+2)*P{j}(3,:)];
-            R = R + double(im(int16(pts(i,(j-1)*2+1)),int16(pts(i,(j-1)*2+2)),1,j));
-            G = G + double(im(int16(pts(i,(j-1)*2+1)),int16(pts(i,(j-1)*2+2)),2,j));
-            B = B + double(im(int16(pts(i,(j-1)*2+1)),int16(pts(i,(j-1)*2+2)),3,j));
-        end;
-        [U,S,V] = svd(A);
-        X = [X V(:,end)/V(end,end)];
-        color = [color [R/size(l,2);G/size(l,2);B/size(l,2)]];
-    end;
-end;
-fprintf('Calcul des points 3D termine : %d points trouves. \n',size(X,2));
+% X = []; % Contient les coordonnees des points en 3D
+% color = []; % Contient la couleur associee
+% % Pour chaque couple de points apparies
+% for i = 1:size(pts,1)
+%     % Recuperation des ensembles de points apparies
+%     l = find(pts(i,1:2:end)~=-1);
+%     % Verification qu'il existe bien des points apparies dans cette image
+%     if size(l,2) > 1 & max(l)-min(l) > 1 & max(l)-min(l) < 36
+%         A = [];
+%         R = 0;
+%         G = 0;
+%         B = 0;
+%         % Pour chaque point recupere, calcul des coordonnees en 3D
+%         for j = l
+%             A = [A;P{j}(1,:)-pts(i,(j-1)*2+1)*P{j}(3,:);
+%             P{j}(2,:)-pts(i,(j-1)*2+2)*P{j}(3,:)];
+%             R = R + double(im(int16(pts(i,(j-1)*2+1)),int16(pts(i,(j-1)*2+2)),1,j));
+%             G = G + double(im(int16(pts(i,(j-1)*2+1)),int16(pts(i,(j-1)*2+2)),2,j));
+%             B = B + double(im(int16(pts(i,(j-1)*2+1)),int16(pts(i,(j-1)*2+2)),3,j));
+%         end;
+%         [U,S,V] = svd(A);
+%         X = [X V(:,end)/V(end,end)];
+%         color = [color [R/size(l,2);G/size(l,2);B/size(l,2)]];
+%     end;
+% end;
+% fprintf('Calcul des points 3D termine : %d points trouves. \n',size(X,2));
 
-%affichage du nuage de points 3D
-figure;
-hold on;
-for i = 1:size(X,2)
-    plot3(X(1,i),X(2,i),X(3,i),'.','col',color(:,i)/255);
-end;
-axis equal;
+% %affichage du nuage de points 3D
+% figure;
+% hold on;
+% for i = 1:size(X,2)
+%     plot3(X(1,i),X(2,i),X(3,i),'.','col',color(:,i)/255);
+% end;
+% axis equal;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % A COMPLETER                  %
